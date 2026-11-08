@@ -97,9 +97,20 @@ self.addEventListener("fetch", event => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
 
-      const cached = await cache.match(request);
+      // Buscar el archivo incluso si el navegador solicita audio por partes
+const cached = await cache.match(request, {
+  ignoreVary: true
+});
 
-      if (cached) return cached;
+if (cached) return cached;
+
+// Si es una petición de audio con Range, buscar el archivo completo
+if (request.headers.has("Range")) {
+  const fullRequest = new Request(request.url);
+  const fullCached = await cache.match(fullRequest);
+
+  if (fullCached) return fullCached;
+}
 
       try {
         const response = await fetch(request);
