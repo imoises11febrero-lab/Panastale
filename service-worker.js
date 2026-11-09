@@ -1,5 +1,4 @@
-
-const CACHE_NAME = "panastale-v4";
+const CACHE_NAME = "panastale-v5";
 
 const FILES_TO_CACHE = [
   "./",
@@ -9,6 +8,7 @@ const FILES_TO_CACHE = [
   "./icon-512.png"
 ];
 
+// INSTALACIÓN
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
@@ -18,6 +18,7 @@ self.addEventListener("install", event => {
   );
 });
 
+// ACTIVACIÓN
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(async keys => {
@@ -32,12 +33,44 @@ self.addEventListener("activate", event => {
   );
 });
 
+// ACTUALIZACIÓN DE ARCHIVOS
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
+  const url = new URL(event.request.url);
+
+  if (url.origin !== self.location.origin) return;
+
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request);
-    })
+    fetch(event.request)
+      .then(async response => {
+
+        if (response && response.ok) {
+          const cache = await caches.open(CACHE_NAME);
+
+          await cache.put(
+            event.request,
+            response.clone()
+          );
+        }
+
+        return response;
+      })
+      .catch(async () => {
+
+        const cached = await caches.match(event.request);
+
+        if (cached) return cached;
+
+        return new Response(
+          "No hay conexión y este archivo no está guardado.",
+          {
+            status: 503,
+            headers: {
+              "Content-Type": "text/plain"
+            }
+          }
+        );
+      })
   );
 });
