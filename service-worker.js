@@ -24,7 +24,10 @@ self.addEventListener("activate", event => {
     caches.keys().then(async keys => {
       await Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+        .filter(key =>
+  key !== CACHE_NAME &&
+  key !== "panastale-musica-v1"
+)
           .map(key => caches.delete(key))
       );
 
@@ -32,7 +35,20 @@ self.addEventListener("activate", event => {
     })
   );
 });
+async function cacheMusic(request, response) {
+  const url = new URL(request.url);
 
+  if (
+    url.origin === self.location.origin &&
+    url.pathname.toLowerCase().includes("/musica/") &&
+    url.pathname.toLowerCase().endsWith(".mp3") &&
+    response.ok
+  ) {
+    const musicCache = await caches.open("panastale-musica-v1");
+
+    await musicCache.put(request, response.clone());
+  }
+}
 // ACTUALIZACIÓN DE ARCHIVOS
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
@@ -46,12 +62,14 @@ self.addEventListener("fetch", event => {
       .then(async response => {
 
         if (response && response.ok) {
-          const cache = await caches.open(CACHE_NAME);
+  const cache = await caches.open(CACHE_NAME);
 
-          await cache.put(
-            event.request,
-            response.clone()
-          );
+  await cache.put(
+    event.request,
+    response.clone()
+  );
+
+  await cacheMusic(event.request, response);
         }
 
         return response;
