@@ -1,4 +1,6 @@
-const CACHE_NAME = "panastale-v5";
+
+const CACHE_NAME = "panastale-v6";
+const MUSIC_CACHE = "panastale-musica-v1";
 
 const FILES_TO_CACHE = [
   "./",
@@ -24,10 +26,10 @@ self.addEventListener("activate", event => {
     caches.keys().then(async keys => {
       await Promise.all(
         keys
-        .filter(key =>
-  key !== CACHE_NAME &&
-  key !== "panastale-musica-v1"
-)
+          .filter(key =>
+            key !== CACHE_NAME &&
+            key !== MUSIC_CACHE
+          )
           .map(key => caches.delete(key))
       );
 
@@ -35,21 +37,19 @@ self.addEventListener("activate", event => {
     })
   );
 });
-async function cacheMusic(request, response) {
+
+// DETECTAR MÚSICA
+function isMusic(request) {
   const url = new URL(request.url);
 
-  if (
+  return (
     url.origin === self.location.origin &&
     url.pathname.toLowerCase().includes("/musica/") &&
-    url.pathname.toLowerCase().endsWith(".mp3") &&
-    response.ok
-  ) {
-    const musicCache = await caches.open("panastale-musica-v1");
-
-    await musicCache.put(request, response.clone());
-  }
+    url.pathname.toLowerCase().endsWith(".mp3")
+  );
 }
-// ACTUALIZACIÓN DE ARCHIVOS
+
+// SOLICITUDES
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
@@ -57,38 +57,63 @@ self.addEventListener("fetch", event => {
 
   if (url.origin !== self.location.origin) return;
 
+  if (isMusic(event.request)) {
+    event.respondWith(
+      (async () => {
+        const musicCache = await caches.open(MUSIC_CACHE);
+
+        try {
+          const response = await fetch(event.request);
+
+          if (response.ok && response.type === "basic") {
+            await musicCache.put(
+              event.request,
+              response.clone()
+            );
+          }
+
+          return response;
+
+        } catch (error) {
+          const cached = await musicCache.match(event.request);
+
+          if (cached) return cached;
+
+          return new Response("Música no disponible", {
+            status: 503
+          });
+        }
+      })()
+    );
+
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request)
-      .then(async response => {
+    (async () => {
+      try {
+        const response = await fetch(event.request);
 
-        if (response && response.ok) {
-  const cache = await caches.open(CACHE_NAME);
+        if (response.ok) {
+          const cache = await caches.open(CACHE_NAME);
 
-  await cache.put(
-    event.request,
-    response.clone()
-  );
-
-  await cacheMusic(event.request, response);
+          await cache.put(
+            event.request,
+            response.clone()
+          );
         }
 
         return response;
-      })
-      .catch(async () => {
 
+      } catch (error) {
         const cached = await caches.match(event.request);
 
         if (cached) return cached;
 
-        return new Response(
-          "No hay conexión y este archivo no está guardado.",
-          {
-            status: 503,
-            headers: {
-              "Content-Type": "text/plain"
-            }
-          }
-        );
-      })
+        return new Response("Archivo no disponible", {
+          status: 503
+        });
+      }
+    })()
   );
 });
