@@ -44,7 +44,7 @@ function isMusic(request) {
 
   return (
     url.origin === self.location.origin &&
-    url.pathname.toLowerCase().includes("/musica/") &&
+    url.pathname.toLowerCase().includes("/music/") &&
     url.pathname.toLowerCase().endsWith(".mp3")
   );
 }
