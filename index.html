@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#071321">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PANASTALE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+* {
+  box-sizing: border-box;
+  image-rendering: pixelated;
+  font-family: 'Press Start 2P', monospace;
+}
+
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+  font-family: 'Press Start 2P', monospace;
+  overflow-x: hidden;
+}
+
+button {
+  background: #000;
+  color: white;
+  border: 3px solid white;
+  padding: 12px;
+  font-family: inherit;
+font-size: 8px;
+line-height: 1.8;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:active {
+  background: #333;
+  transform: translate(2px,2px);
+}
+
+button:disabled { opacity: .4; }
+
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+h1,h2 { text-align: center; }
+
+/* TITULO */
+#titleScreen {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: radial-gradient(ellipse at center,#102b46,#03070e 75%);
+}
+
+.title-content { width: 100%; max-width: 500px; }
+
+.game-title {
+  color: #42dfff;
+  font-size: clamp(29px,8vw,47px);
+  letter-spacing: 7px;
+  text-shadow: 4px 4px #075078,0 0 15px #159bd4;
+}
+
+.subtitle {
+  color: #a8c9df;
+  font-size: 8px;
+  letter-spacing: 3px;
+}
+
+.title-heart {
+  font-size: 75px;
+  color: #BABADF;
+  margin: 45px 0;
+  text-shadow: 0 0 20px #BABADF;
+  animation: heartPulse 1.5s infinite alternate;
+}
+
+.title-description {
+  font-size: 12px;
+  letter-spacing: 2px;
+  margin-bottom: 35px;
+}
+
+#playBtn {
+  width: 230px;
+  border: 3px solid #42dfff;
+  color: #42dfff;
+  padding: 16px;
+}
+
+.version {
+  color: #667b8e;
+  font-size: 10px;
+  margin-top: 45px;
+}
+
+@keyframes heartPulse {
+  to { transform: scale(1.15); opacity: 1; }
+}
+
+/* MUSICA */
+#musicToggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 20;
+  padding: 8px 10px;
+  font-size: 12px;
+  border-color: #42dfff;
+  color: #42dfff;
+  background: rgba(0,0,0,.85);
+}
+
+/* SELECCION */
+#selection {
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.characters {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.character {
+  width: 135px;
+  padding: 12px 8px;
+  border: 3px solid #555;
+  text-align: center;
+  cursor: pointer;
+}
+
+.character.selected {
+  border-color: white;
+  box-shadow: 4px 4px #555;
+}
+
+.preview {
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.jose { width: 48px; height: 48px; background: #BABADF; }
+
+.ivan {
+  width: 0;
+  height: 0;
+  border-left: 27px solid transparent;
+  border-right: 27px solid transparent;
+  border-bottom: 55px solid #000080;
+}
+
+.paulo {
+  width: 48px;
+  height: 48px;
+  background: #99FDFF;
+  border-radius: 50%;
+}
+
+.gabriel {
+  width: 48px;
+  height: 48px;
+  background: #00FFFF;
+  clip-path: polygon(50% 0%,100% 35%,82% 100%,18% 100%,0% 35%);
+}
+
+.stats { text-align: center; line-height: 1.8; }
+
+#start,#bossStart {
+  width:220px;
+  max-width:100%;
+  margin-top:8px;
+}
+
+#enemyCatalog {
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+}
+
+#enemyCatalog h1 {
+  color:#35d9ff;
+  text-align:center;
+  font-size:18px;
+  line-height:1.8;
+}
+
+#enemyCatalog p {
+  color:white;
+  font-size:10px;
+}
+
+#enemyCatalog button {
+  width:280px;
+  max-width:100%;
+  min-height:55px;
+  margin:5px;
+  font-size:10px;
+  border:3px solid #35d9ff;
+  background:#071321;
+  color:white;
+  cursor:pointer;
+}
+
+#enemyCatalog button:active {
+  background:#159bd4;
+  color:black;
+}
+
+#backToSelection {
+  border-color:#888 !important;
+  color:#bbb !important;
+}
+
+.boss-start {
+  color: #ff5555;
+  border-color: #ff5555;
+  box-shadow: 3px 3px #771b1b;
+}
+
+.boss-start:active { background: #351010; }
+
+/* BATALLA */
+#battle {
+  width: 100%;
+  max-width: 650px;
+  margin: auto;
+  gap: 14px;
+  justify-content: flex-start;
+}
+
+#battle h2 {
+  font-size: 23px;
+  letter-spacing: 4px;
+  margin: 4px;
+  text-shadow: 3px 3px #444;
+}
+
+/* ESTADISTICAS */
+.status-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  border: 4px double white;
+  background: #080808;
+  box-shadow: 4px 4px #333;
+}
+
+.status-player,.status-enemy,.tp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 7px;
+}
+
+.status-player span { color: #BABADF; }
+.status-enemy span { color: #ff7777; }
+
+.health-bar,.tp-bar {
+  height: 13px;
+  border: 2px solid white;
+  background: #222;
+}
+
+#playerBar,#enemyBar,#tpBar {
+  height: 100%;
+  width: 100%;
+  transition: width .2s;
+}
+
+#playerBar { background: #BABADF; }
+#enemyBar { background: #ff4545; }
+
+.tp-panel {
+  grid-column: 1 / 3;
+  color: #42dfff;
+}
+
+#tpBar { background: #42dfff; width: 0%; }
+
+/* ESCENARIO */
+.arena {
+  width: 100%;
+  height: 245px;
+  border: 4px double white;
+  background: #050505;
+  box-shadow: 4px 4px #444;
+  position: relative;
+  overflow: hidden;
+}
+  /* ARENA DEL SLIME OSCURO */
+.arena.dark-slime-arena {
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(110,0,160,.35), transparent 45%),
+    radial-gradient(ellipse at 20% 80%, rgba(40,0,90,.5), transparent 50%),
+    linear-gradient(to bottom, #10091f, #241038 65%, #10091b);
+  border-color: #a34be8;
+  box-shadow: 0 0 12px rgba(145,40,220,.5);
+}
+
+.arena.dark-slime-arena .ground {
+  border-color: #a34be8;
+  box-shadow: 0 0 10px #8b32c9;
+}
+/* ARENA DEL CUADRADO MALVADO */
+.arena.square-enemy-arena {
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(255,0,0,.35), transparent 45%),
+    radial-gradient(ellipse at 20% 80%, rgba(120,0,0,.5), transparent 50%),
+    linear-gradient(to bottom, #240606, #4a1010 65%, #1a0303);
+  border-color: #ff3333;
+  box-shadow: 0 0 12px rgba(255,30,30,.6);
+}
+
+.arena.square-enemy-arena .ground {
+  border-color: #ff3333;
+  box-shadow: 0 0 10px #cc1111;
+}
+  /* ARENA DEL GUARDIÁN */
+.arena.guardian-arena {
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(180,20,20,.18), transparent 45%),
+    radial-gradient(ellipse at 20% 80%, rgba(100,10,10,.2), transparent 50%),
+    linear-gradient(to bottom, #252525, #454545 65%, #1b1b1b);
+  border-color: #777;
+  box-shadow: 0 0 12px rgba(150,30,30,.35);
+}
+
+.arena.guardian-arena .ground {
+  border-color: #888;
+  box-shadow: 0 0 10px rgba(180,35,35,.5);
+}
+.fighter { position: absolute; bottom: 30px; }
+
+.sprite-image {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.preview .sprite-image { width: 64px; height: 64px; }
+
+#hero { left: 12%; bottom: 30px; }
+
+#hero .sprite-image {
+  width: 76px;
+  height: 88px;
+  transform: translate(0px, 16px);
+}
+
+#enemy { right: 12%; bottom: 30px; }
+
+#enemy .sprite-image {
+  width: 76px;
+  height: 88px;
+  transform: translate(0px, 16px);
+}
+
+.ground {
+  position: absolute;
+  bottom: 22px;
+  width: 100%;
+  border-bottom: 3px solid white;
+}
+
+.enemy-shape { width: 48px; height: 48px; background: #D94A4A; }
+
+/* DISEÑO DE RESPALDO DEL GUARDIAN */
+.guardian {
+  position: relative;
+  width: 76px;
+  height: 88px;
+  background: linear-gradient(90deg,#29233b,#62516f,#29233b);
+  border: 4px solid #b7a5c9;
+  box-shadow: 0 0 12px #a14aff, 0 0 25px #6525a3;
+  clip-path: polygon(20% 0,80% 0,100% 25%,90% 85%,50% 100%,10% 85%,0 25%);
+  animation: guardianFloat 1.8s infinite alternate;
+}
+
+.guardian::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 25px;
+  width: 12px;
+  height: 8px;
+  background: #ff3030;
+  box-shadow: 30px 0 #ff3030,0 0 9px #ff3030,30px 0 9px #ff3030;
+}
+
+.guardian::after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  bottom: 14px;
+  width: 30px;
+  height: 8px;
+  background: #160e24;
+  border-top: 3px solid #b7a5c9;
+}
+
+@keyframes guardianFloat {
+  from { transform: translateY(0); }
+  to { transform: translateY(-7px); }
+}
+
+#enemy.guardian-enemy { bottom: 24px; }
+#enemy.guardian-enemy .guardian { animation-duration: 1.1s; }
+
+/*
+  FASES DEL GUARDIAN:
+  Los filtros y las sombras solo afectan al diseño CSS de respaldo.
+  Los PNG mantienen intactos sus colores y transparencia.
+*/
+#enemy.guardian-phase2 .guardian {
+  filter: none;
+  box-shadow: 0 0 15px #ff4242,0 0 28px #a00000;
+  animation-duration: 1.1s;
+}
+
+#enemy.guardian-phase3 .guardian {
+  filter: none;
+  box-shadow: 0 0 20px #ff0000,0 0 35px #ff0000;
+  animation-duration: .5s;
+}
+
+#enemy.guardian-phase2 .sprite-image,
+#enemy.guardian-phase3 .sprite-image {
+  filter: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* ESQUIVA */
+#dodgeArea {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: #000;
+  border: 3px solid white;
+  overflow: hidden;
+  z-index: 5;
+}
+
+#soul {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#soul img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.projectile {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  background: transparent;
+  box-shadow: none;
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: projectileSpawn .25s ease-out;
+}
+
+@keyframes projectileSpawn {
+  0% { opacity: 0; transform: scale(.2) rotate(45deg); }
+  70% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.projectile::after {
+  display: none;
+}
+
+.graze-effect {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  animation: grazeFloat .65s ease-out forwards;
+}
+
+.graze-ring {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #42e9ff;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #42e9ff;
+  animation: grazeExpand .45s ease-out forwards;
+}
+
+.graze-text {
+  position: absolute;
+  left: 50%;
+  top: -17px;
+  transform: translateX(-50%);
+  color: #42e9ff;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+@keyframes grazeExpand { to { transform: scale(1.8); opacity: 0; } }
+@keyframes grazeFloat { to { opacity: 0; margin-top: -22px; } }
+
+.soul-invulnerable { animation: soulInvulnerability .8s ease-in-out; }
+
+@keyframes soulInvulnerability {
+  0%,100% { opacity: 1; }
+  25%,75% { opacity: .2; }
+  50% { opacity: 1; }
+}
+
+/* MENSAJE */
+#message {
+  min-height: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  border: 4px double white;
+  background: #000;
+  font-size: 9px;
+  line-height: 1.6;
+  box-shadow: 4px 4px #333;
+  text-align: center;
+}
+/* EFECTO DE ESCRITURA */
+#message {
+  cursor: pointer;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+#message.typing::after {
+  content: "▌";
+  color: #42dfff;
+  animation: textBlink .6s infinite;
+  margin-left: 5px;
+}
+
+#message.finished::after {
+  content: "▼";
+  color: #42dfff;
+  font-size: 7px;
+  margin-left: 8px;
+  animation: textBlink .8s infinite;
+}
+
+@keyframes textBlink {
+  50% { opacity: 0; }
+  }
+/* MENU */
+.battle-menu {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 10px;
+}
+
+.command {
+  min-height: 55px;
+  background: #000;
+  border: 3px solid white;
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  box-shadow: 3px 3px #444;
+}
+
+.fight { color: #ffb13b; border-color: #ffb13b; }
+.act { color: #42e9ff; border-color: #42e9ff; }
+.item { color: #66e68a; border-color: #66e68a; }
+.defend { color: #ffe66b; border-color: #ffe66b; }
+.skill { color: #d78cff; border-color: #d78cff; }
+
+.spare {
+  color: #ff6b9c;
+  border-color: #ff6b9c;
+  grid-column: 1 / 3;
+}
+
+/* JOYSTICK */
+#controls { display: none; justify-content: center; padding: 8px; }
+
+.joystick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.joystick-middle { display: flex; align-items: center; gap: 5px; }
+
+.joystick button {
+  width: 58px;
+  height: 48px;
+  font-size: 23px;
+  background: #101820;
+  border: 2px solid #BABADF;
+  border-radius: 5px;
+  padding: 4px;
+}
+
+.joystick .center-button {
+  color: #BABADF;
+  border-color: #555;
+  pointer-events: none;
+}
+
+.virtual-joystick {
+  position: fixed;
+  width: 120px;
+  height: 120px;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  border: 2px solid rgba(255,255,255,.55);
+  border-radius: 50%;
+  background: rgba(80,100,130,.25);
+  z-index: 999;
+  touch-action: none;
+}
+
+.virtual-joystick-knob {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  background: rgba(180,230,255,.8);
+  border: 2px solid white;
+  transform: translate(-50%,-50%);
+}
+
+/* FINAL */
+#end { justify-content: center; align-items: center; text-align: center; }
+#end button { margin-top: 20px; }
+
+@media(max-width:380px) {
+  #battle { padding: 9px; }
+  .command { font-size: 12px; }
+  .arena { height: 210px; }
+}
+  /* TIPOGRAFIA PIXELADA PANASTALE */
+
+* {
+  font-family: 'Press Start 2P', monospace;
+}
+
+body {
+  font-size: 8px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 8px;
+  line-height: 1.8;
+}
+
+.game-title {
+  font-size: clamp(22px, 7vw, 38px);
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  font-size: 7px;
+  line-height: 1.8;
+}
+
+.title-description {
+  font-size: 8px;
+  line-height: 2;
+}
+
+.version {
+  font-size: 7px;
+}
+
+#musicToggle {
+  font-size: 7px;
+}
+
+#battle h2 {
+  font-size: 14px;
+}
+
+.status-player,
+.status-enemy,
+.tp-panel {
+  font-size: 7px;
+  line-height: 1.8;
+}
+
+.character h3 {
+  font-size: 8px;
+  line-height: 1.8;
+}
+
+.character p {
+  font-size: 7px;
+  line-height: 1.8;
+}
+
+.stats {
+  font-size: 8px;
+  line-height: 2;
+}
+
+#message {
+  font-size: 8px;
+  line-height: 2;
+}
+
+.command {
+  font-size: 8px;
+  line-height: 1.8;
+}
+
+.graze-text {
+  font-size: 7px;
+}
+
+.joystick button {
+  font-size: 16px;
+}
+
+@media(max-width:380px) {
+  .command {
+    font-size: 7px;
+  }
+
+  #message {
+    font-size: 7px;
+  }
+
+  .status-player,
+  .status-enemy,
+  .tp-panel {
+    font-size: 6px;
+  }
+}
+  #enemyButtons {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:20px;
+  margin:20px 0;
+}
+
+.enemy-entry {
+  width:135px;
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#102438;
+  border:2px solid #159bd4;
+  padding:10px;
+  text-align:center;
+}
+
+.catalog-sprite {
+  width:90px;
+  height:90px;
+  object-fit:contain;
+  image-rendering:pixelated;
+}
+
+.enemy-entry p {
+  color:white;
+  font-size:9px;
+  line-height:1.8;
+}
+  .enemy-entry {
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.enemy-entry:active {
+  transform:scale(0.96);
+  border-color:#35d9ff;
+}
+
+.enemy-stats {
+  width:100%;
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px solid #35d9ff;
+  color:#35d9ff;
+  font-size:9px;
+  line-height:2;
+}
+  /* POSICIONES INDIVIDUALES DE LOS HÉROES */
+
+#hero.hero-square .sprite-image {
+  transform: translate(0px, 16px);
+}
+
+#hero.hero-triangle .sprite-image {
+  transform: translate(0px, 12px);
+}
+
+#hero.hero-circle .sprite-image {
+  transform: translate(0px, 11px);
+}
+
+#hero.hero-pentagon .sprite-image {
+  transform: translate(0px, 11px);
+}
+
+#hero.hero-boomer .sprite-image {
+  transform: translate(0px, 21px);
+}
+
+/* POSICIONES INDIVIDUALES DE LOS ENEMIGOS */
+
+#enemy.enemy-square .sprite-image {
+  transform: translate(0px, 16px);
+}
+
+#enemy.enemy-slime .sprite-image {
+  transform: translate(0px, 29px);
+}
+
+#enemy.enemy-guardian .sprite-image {
+  transform: translate(0px, 2px);
+}
+  
+/* ARENA DEL MINI GUARDIÁN */
+.arena.mini-guardian-arena {
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(150,30,30,.3), transparent 45%),
+    linear-gradient(to bottom, #211010, #392020 65%, #160808);
+  border-color: #bb5555;
+  box-shadow: 0 0 12px rgba(180,40,40,.5);
+}
+
+.arena.mini-guardian-arena .ground {
+  border-color: #bb5555;
+}
+
+/* ARENA DEL ARACNOCOFRE */
+.arena.aracnocofre-arena {
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(120,50,180,.35), transparent 45%),
+    linear-gradient(to bottom, #160c20, #30203b 65%, #100817);
+  border-color: #ad70d6;
+  box-shadow: 0 0 14px rgba(150,70,210,.5);
+}
+
+.arena.aracnocofre-arena .ground {
+  border-color: #ad70d6;
+}
+
+#enemy.enemy-mini-guardian .sprite-image {
+  width: 65px;
+  height: 65px;
+  transform: translateY(8px);
+}
+
+#enemy.enemy-aracnocofre .sprite-image {
+  width: 100px;
+  height: 100px;
+  transform: translateY(22px);
+}
+/* PILARES DEL ARACNOCOFRE */
+
+.aracnocofre-pillar {
+  position: absolute;
+  left: 100%;
+  width: 10%;
+  background-image: url("Sprites/Proyectiles/Pata_AC.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index: 5;
+  pointer-events: none;
+  animation: aracnocofreAvance linear forwards;
+  will-change: transform;
+}
+
+.aracnocofre-pillar-top {
+  top: 0;
+  transform: scaleY(-1);
+}
+
+.aracnocofre-pillar-bottom {
+  bottom: 0;
+}
+
+@keyframes aracnocofreAvance {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: -120vw 0;
+  }
+}
+
+.aracnocofre-pillar-top {
+  transform: scaleY(-1);
+}
+</style>
+</head>
+
+<body>
+<button id="musicToggle">♫ MÚSICA: ON</button>
+
+<section id="titleScreen" class="screen active">
+  <div class="title-content">
+    <h1 class="game-title">PANASTALE</h1>
+    <p class="subtitle">AN ORIGINAL 16-BIT RPG</p>
+    <div class="title-heart">♥</div>
+    <p class="title-description">UNA HISTORIA DE AMIGOS...</p>
+    <button id="playBtn">INICIAR JUEGO</button>
+    <p class="version">VERSION 1.4</p>
+  </div>
+</section>
+
+<section id="selection" class="screen">
+  <h1>SELECCIÓN DE PERSONAJE</h1>
+  <div class="characters" id="characterList"></div>
+  <div class="stats" id="characterInfo">Personaje seleccionado: José</div>
+<button id="openEnemyCatalog">⚔ CATÁLOGO DE ENEMIGOS</button></section>
+<section id="enemyCatalog" class="screen">
+  <h1>CATÁLOGO DE ENEMIGOS</h1>
+
+  <div id="categoryMenu">
+    <p style="text-align:center; line-height:2;">
+      SELECCIONA UNA CATEGORÍA
+    </p>
+
+    <button id="commonCategory">⚔ COMUNES</button>
+    <button id="specialCategory">✦ ESPECIALES</button>
+    <button id="miniBossCategory">☠ MINIJEFES</button>
+    <button id="bossCategory">👑 JEFES</button>
+  </div>
+
+  <div id="enemyList" style="display:none;">
+    <h2 id="categoryTitle"></h2>
+    <div id="enemyButtons"></div>
+
+    <button id="backToCategories">VOLVER A CATEGORÍAS</button>
+  </div>
+
+  <button id="backToSelection">VOLVER A SELECCIÓN</button>
+</section>
+<section id="battle" class="screen">
+  <h2>BATALLA</h2>
+
+  <div class="status-panel">
+    <div class="status-player">
+      <span id="playerHP">JOSÉ HP: 100/100</span>
+      <div class="health-bar"><div id="playerBar"></div></div>
+    </div>
+    <div class="status-enemy">
+      <span id="enemyHP">ENEMIGO HP: 80/80</span>
+      <div class="health-bar"><div id="enemyBar"></div></div>
+    </div>
+    <div class="tp-panel">
+      <span id="tp">TP: 0%</span>
+      <div class="tp-bar"><div id="tpBar"></div></div>
+    </div>
+  </div>
+
+  <div class="arena" id="arena">
+    <div class="ground"></div>
+    <div id="hero" class="fighter"></div>
+    <div id="enemy" class="fighter"><div class="enemy-shape"></div></div>
+    <div id="dodgeArea"><div id="soul">♥</div></div>
+  </div>
+
+  <div id="message">¡Un enemigo apareció!</div>
+
+  <div class="battle-menu" id="menu">
+    <button class="command fight" id="attackBtn">⚔ ATACAR</button>
+    <button class="command act" id="actBtn">✦ ACT</button>
+    <button class="command item" id="itemBtn">▣ OBJETOS</button>
+    <button class="command defend" id="defendBtn">◆ DEFENDER</button>
+    <button class="command skill" id="skillBtn">✦ HABILIDAD</button>
+    <button class="command spare" id="spareBtn">♥ PERDONAR</button>
+  </div>
+
+  <div id="controls">
+    <div class="joystick">
+      <button data-move="up">▲</button>
+      <div class="joystick-middle">
+        <button data-move="left">◀</button>
+        <button class="center-button">●</button>
+        <button data-move="right">▶</button>
+      </div>
+      <button data-move="down">▼</button>
+    </div>
+  </div>
+</section>
+
+<section id="end" class="screen">
+  <h1 id="endTitle"></h1>
+  <p id="endMessage"></p>
+  <button id="restartBtn">VOLVER A JUGAR</button>
+</section>
+
+<script>
+/* SISTEMA MUSICAL EXTERNO */
+
+let audioContext = null;
+let musicEnabled = true;
+let musicUnlocked = false;
+let currentMusic = null;
+let musicVolume = 0.8;
+
+const externalTracks = {
+  titleScreen: "Music/Menu.mp3",
+  selection: "Music/Menu.mp3",
+  battleCommon: "Music/Batalla_Comun.mp3",
+  battleSpecial: "Music/Batalla_Especial.mp3",
+  guardian: "Music/Guardian_Jefe.mp3",
+  end: "Music/Menu.mp3",
+  defeat: "Music/Menu.mp3"
+};
+
+const backgroundMusic = new Audio();
+backgroundMusic.loop = true;
+backgroundMusic.volume = musicVolume;
+
+function unlockMusic() {
+  if (!musicUnlocked) {
+    musicUnlocked = true;
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+
+    if (AudioCtx && !audioContext) {
+      try {
+        audioContext = new AudioCtx();
+        audioContext.resume().catch(console.error);
+      } catch (error) {
+        console.log("AudioContext no disponible:", error);
+      }
+    }
+  }
+
+  if (musicEnabled && currentMusic) {
+    playMusic(currentMusic);
+  }
+}
+
+function playMusic(screenId) {
+  if (!musicEnabled) return;
+
+  let trackId = screenId;
+
+  if (screenId === "battle") {
+    if (enemy && enemy.type === "boss") {
+      trackId = "guardian";
+    } else if (enemy && enemy.category === "special") {
+      trackId = "battleSpecial";
+    } else {
+      trackId = "battleCommon";
+    }
+  }
+
+  const track = externalTracks[trackId];
+  if (!track) return;
+
+  currentMusic = screenId;
+
+  if (!musicUnlocked) return;
+
+  const newSource = new URL(track, document.baseURI).href;
+
+  if (backgroundMusic.src !== newSource) {
+    backgroundMusic.src = newSource;
+    backgroundMusic.load();
+  }
+
+  backgroundMusic.volume = musicVolume;
+
+  backgroundMusic.play().catch(error => {
+    console.log("Error al reproducir música:", error);
+  });
+}
+
+function stopMusic() {
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+}
+
+function changeMusic(screenId) {
+  currentMusic = screenId;
+
+  if (!musicEnabled || !musicUnlocked) return;
+
+  playMusic(screenId);
+}
+
+function toggleMusic() {
+  musicEnabled = !musicEnabled;
+
+  $("musicToggle").innerText =
+    musicEnabled ? "♫ MÚSICA: ON" : "♫ MÚSICA: OFF";
+
+  if (musicEnabled) {
+    unlockMusic();
+
+    const activeScreen =
+      document.querySelector(".screen.active")?.id || "titleScreen";
+
+    playMusic(activeScreen);
+  } else {
+    stopMusic();
+  }
+}
+
+document.addEventListener("pointerdown", unlockMusic, {once:true});
+document.addEventListener("keydown", unlockMusic, {once:true});
+
+/* EFECTOS DE SONIDO */
+const soundPatterns = {
+  select:{notes:[660,880],wave:"square",duration:.07,volume:.045},
+  attack:{notes:[180,110],wave:"sawtooth",duration:.09,volume:.065},
+  damage:{notes:[240,150,90],wave:"square",duration:.075,volume:.055},
+  dodge:{notes:[740],wave:"triangle",duration:.045,volume:.025},
+  item:{notes:[523,659,784],wave:"sine",duration:.11,volume:.05},
+  victory:{notes:[523,659,784,1047],wave:"triangle",duration:.16,volume:.06},
+  defeat:{notes:[392,330,262,196],wave:"sine",duration:.22,volume:.055}
+};
+
+function playSfx(name) {
+  if(!musicEnabled||!musicUnlocked||!audioContext) return;
+  const sound=soundPatterns[name];
+  if(!sound) return;
+  sound.notes.forEach((frequency,index)=>{
+    const startAt=audioContext.currentTime+index*sound.duration;
+    const oscillator=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    oscillator.type=sound.wave;
+    oscillator.frequency.setValueAtTime(frequency,startAt);
+    gain.gain.setValueAtTime(.0001,startAt);
+    gain.gain.exponentialRampToValueAtTime(sound.volume,startAt+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,startAt+sound.duration*.9);
+    oscillator.connect(gain); gain.connect(audioContext.destination);
+    oscillator.start(startAt); oscillator.stop(startAt+sound.duration);
+  });
+}
+
+/* PERSONAJES */
+const characters = {
+  Jose:{
+    name:"José",atk:15,def:1,hp:110,maxHP:110,
+    color:"#BABADF",shape:"square",
+    sprite:"Sprites/Heroes/Jose.png",
+    soul:"Sprites/ALMAS/soul_Jose.png"
+  },
+  Ivan:{
+    name:"Iván",atk:5,def:20,hp:120,maxHP:120,
+    color:"#000080",shape:"triangle",
+    sprite:"Sprites/Heroes/Ivan.png",
+    soul:"Sprites/ALMAS/soul_Ivan.png"
+  },
+  Paulo:{
+    name:"Paulo",atk:5,def:5,hp:100,maxHP:100,
+    color:"#99FDFF",shape:"circle",
+    sprite:"Sprites/Heroes/Paulo.png",
+    soul:"Sprites/ALMAS/soul_Paulo.png"
+  },
+  Gabriel:{
+    name:"Gabriel",atk:14,def:14,hp:80,maxHP:80,
+    color:"#00FFFF",shape:"pentagon",
+    sprite:"Sprites/Heroes/Gabriel.png",
+    soul:"Sprites/ALMAS/soul_Gabriel.png"
+  },
+  Boomer:{
+    name:"Boomer",atk:10,def:10,hp:90,maxHP:90,
+    color:"#FFD200",shape:"boomer",
+    sprite:"Sprites/Heroes/Boomer.png",
+    soul:"Sprites/ALMAS/soul_Boomer.png"
+  }
+};
+
+const NORMAL_ENEMY = {
+  name:"CUADRADO MALVADO",
+  hp:80,
+  maxHP:80,
+  atk:8,
+  def:0,
+  type:"normal",
+  sprite:"Sprites/Enemigos/CuadradoMalvado.png",
+  projectile:"Sprites/Proyectiles/Proyectil_CM.png"
+};
+
+const DARK_SLIME = {
+  name:"SLIME OSCURO",
+  hp:60,
+  maxHP:60,
+  atk:7,
+  def:2,
+  type:"normal",
+  sprite:"Sprites/Enemigos/SlimeOscuro.png",
+  projectile:"Sprites/Proyectiles/Proyectil_SO.png"
+};
+
+const BOSS_GUARDIAN = {
+  name:"EL GUARDIÁN",
+  hp:500,
+  maxHP:500,
+  atk:12,
+  def:5,
+  type:"boss",
+  phase:1,
+  projectile:"Sprites/Proyectiles/Proyectil_Guardian.png",
+  sprites:{
+    1:"Sprites/Enemigos/guardian_fase1.png",
+    2:"Sprites/Enemigos/guardian_fase2.png",
+    3:"Sprites/Enemigos/guardian_fase3.png"
+  }
+};
+
+/* CARGADOR DE SPRITES */
+function renderSprite(container,imagePath,fallbackHTML,extraClass="") {
+  container.innerHTML="";
+  const img=document.createElement("img");
+  img.className=("sprite-image "+extraClass).trim();
+  img.src=imagePath;
+  img.alt="Sprite";
+  img.draggable=false;
+  img.onerror=()=>{ container.innerHTML=fallbackHTML; };
+  container.appendChild(img);
+}
+function renderSoul() {
+  const soul=$("soul");
+  if(!soul||!player) return;
+
+  soul.innerHTML="";
+
+  const img=document.createElement("img");
+  img.src=player.soul;
+  img.alt="ALMA de "+player.name;
+  img.draggable=false;
+
+  img.onerror=()=>{
+    soul.innerHTML="♥";
+    soul.style.color=player.color;
+    soul.style.fontSize="25px";
+  };
+
+  soul.appendChild(img);
+}
+function characterFallback(shape) {
+  const classes={square:"jose",triangle:"ivan",circle:"paulo",pentagon:"gabriel"};
+  return `<div class="${classes[shape]||"jose"}"></div>`;
+}
+
+function renderCharacterCards() {
+  const list=$("characterList");
+  list.innerHTML="";
+  Object.entries(characters).forEach(([id,character])=>{
+    const card=document.createElement("div");
+    card.className="character";
+    card.dataset.character=id;
+    card.innerHTML=`
+      <div class="preview"></div>
+      <h3>${character.name}</h3>
+      <p>ATQ: ${character.atk}</p>
+      <p>DEF: ${character.def}</p>
+      <p>ALMA: ${character.color}</p>
+    `;
+    renderSprite(card.querySelector(".preview"),character.sprite,characterFallback(character.shape));
+    card.addEventListener("click",()=>selectCharacter(id));
+    list.appendChild(card);
+  });
+}
+
+/* VARIABLES */
+let player=null, enemy=null;
+let tp=0, mercy=0;
+let defended=false, potionUsed=false;
+let josePowerAttack=false, ivanAbsoluteDefense=false, gabrielTimeDistortion=false;
+let pauloBoostTurns=0, pauloOriginalAtk=5, pauloOriginalDef=5;
+let turnLocked=false, dodgeActive=false;
+let projectileInterval=null, dodgeTimeout=null, projectiles=[];
+let projectileFrame=null, movementFrame=null;
+let lastProjectileTime=0, lastMovementTime=0;
+let attackPatternCounter=0, alternatingHigh=true;
+let lastBossPattern=-1;
+let soulX=50, soulY=50, keysPressed={};
+let joystickActive=false, joystickPointerId=null;
+let joystickCenterX=0, joystickCenterY=0;
+const soulSpeed=.043;
+const $=id=>document.getElementById(id);
+
+renderCharacterCards();
+
+/* PANTALLAS Y MENSAJES */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(screen=>screen.classList.remove("active"));
+  $(id).classList.add("active");
+  changeMusic(id);
+}
+
+
+/* SISTEMA DE ESCRITURA PROGRESIVA */
+
+let typingInterval = null;
+let messageQueue = [];
+let currentMessage = "";
+let currentCharacter = 0;
+let isTyping = false;
+
+const typingSpeed = 25;
+
+function message(text) {
+  // Agregar el mensaje a la cola
+  messageQueue.push(String(text));
+
+  // Si no hay ningún mensaje escribiéndose,
+  // comenzar con el siguiente
+  if (!isTyping) {
+    showNextMessage();
+  }
+}
+
+function showNextMessage() {
+  if (messageQueue.length === 0) {
+    isTyping = false;
+    return;
+  }
+
+  isTyping = true;
+
+  currentMessage = messageQueue.shift();
+  currentCharacter = 0;
+
+  const box = $("message");
+
+  box.textContent = "";
+  box.classList.remove("finished");
+  box.classList.add("typing");
+
+  typingInterval = setInterval(() => {
+    if (currentCharacter < currentMessage.length) {
+      box.append(currentMessage[currentCharacter]);
+      currentCharacter++;
+    }
+
+    if (currentCharacter >= currentMessage.length) {
+      finishMessage();
+    }
+  }, typingSpeed);
+}
+
+function finishMessage() {
+  if (!isTyping) return;
+
+  clearInterval(typingInterval);
+  typingInterval = null;
+
+  const box = $("message");
+
+  box.textContent = currentMessage;
+
+  box.classList.remove("typing");
+  box.classList.add("finished");
+
+  currentCharacter = currentMessage.length;
+  isTyping = false;
+
+  // Esperar antes de mostrar el siguiente mensaje
+  setTimeout(() => {
+    showNextMessage();
+  }, 900);
+}
+
+/* SELECCION */
+function selectCharacter(name) {
+  playSfx("select");
+  player={...characters[name]};
+  document.querySelectorAll(".character").forEach(card=>{
+    card.classList.toggle("selected",card.dataset.character===name);
+  });
+  $("characterInfo").innerText="Personaje seleccionado: "+player.name+" | ATQ: "+player.atk+" | DEF: "+player.def;
+}
+
+/* BATALLA */
+function startBattle(mode="normal", selectedEnemy=null) {
+  if(!player) return;
+
+  clearTimers();
+  stopDynamicJoystick();
+
+  player={...player,hp:player.maxHP};
+
+  if(selectedEnemy) {
+  if(selectedEnemy.name==="EL GUARDIÁN") {
+    enemy={
+      ...BOSS_GUARDIAN,
+      projectile:selectedEnemy.projectile,
+      sprites:{...BOSS_GUARDIAN.sprites}
+    };
+  } else {
+    enemy={
+      ...selectedEnemy,
+      maxHP:selectedEnemy.hp,
+      type:mode==="boss"?"boss":"normal"
+    };
+  }
+} else {
+  enemy=mode==="boss"
+    ? {...BOSS_GUARDIAN,sprites:{...BOSS_GUARDIAN.sprites}}
+    : {...NORMAL_ENEMY};
+                                        }
+
+  tp=0; mercy=0; defended=false; potionUsed=false;
+  josePowerAttack=false; ivanAbsoluteDefense=false; gabrielTimeDistortion=false;
+  pauloBoostTurns=0;
+  pauloOriginalAtk=player.atk; pauloOriginalDef=player.def;
+
+  $("skillBtn").disabled=false;
+  turnLocked=false; dodgeActive=false;
+  soulX=50; soulY=50;
+
+  $("menu").style.display="grid";
+  $("dodgeArea").style.display="none";
+  $("controls").style.display="none";
+
+  const heroElement=$("hero");
+heroElement.className="fighter";
+
+renderSprite(heroElement,player.sprite,characterFallback(player.shape));
+heroElement.classList.add("hero-"+player.shape);
+
+  const enemyElement=$("enemy");
+enemyElement.className="fighter";
+
+if(enemy.name==="CUADRADO MALVADO") {
+  enemyElement.classList.add("enemy-square");
+}
+
+if(enemy.name==="SLIME OSCURO") {
+  enemyElement.classList.add("enemy-slime");
+}
+
+if(enemy.name==="EL GUARDIÁN") {
+  enemyElement.classList.add("enemy-guardian");
+}
+if(enemy.name==="MINI GUARDIÁN") {
+  enemyElement.classList.add("enemy-mini-guardian");
+}
+
+if(enemy.name==="ARACNOCOFRE") {
+  enemyElement.classList.add("enemy-aracnocofre");
+  }
+const arenaElement=$("arena");
+arenaElement.className="arena";
+
+if(enemy.name==="SLIME OSCURO") {
+  arenaElement.classList.add("dark-slime-arena");
+}
+
+if(enemy.name==="CUADRADO MALVADO") {
+  arenaElement.classList.add("square-enemy-arena");
+}
+  if(enemy.name==="MINI GUARDIÁN") {
+  arenaElement.classList.add("mini-guardian-arena");
+}
+
+if(enemy.name==="ARACNOCOFRE") {
+  arenaElement.classList.add("aracnocofre-arena");
+}
+if(enemy.type==="boss") {
+  arenaElement.classList.add("guardian-arena");
+  }
+if(enemy.type==="boss") {
+  enemyElement.classList.add("guardian-enemy");
+  renderSprite(enemyElement,enemy.sprites[1],'<div class="guardian"></div>');
+} else {
+  renderSprite(enemyElement,enemy.sprite,'<div class="enemy-shape"></div>');
+  }
+
+  renderSoul();
+  showScreen("battle");
+  updateStatus();
+
+  message(enemy.name==="EL GUARDIÁN"
+    ?"¡EL GUARDIÁN ha aparecido! Prepárate para luchar."
+    :"¡"+enemy.name+" apareció!");
+  }
+
+/* ESTADISTICAS */
+function updateStatus() {
+  $("playerHP").innerText=player.name.toUpperCase()+" HP: "+player.hp+"/"+player.maxHP;
+  let enemyLabel=enemy.name;
+  if(enemy.type==="boss") enemyLabel+=" | FASE "+enemy.phase;
+  $("enemyHP").innerText=enemyLabel+" HP: "+enemy.hp+"/"+enemy.maxHP;
+  $("tp").innerText="TP: "+tp+"%";
+  $("playerBar").style.width=(player.hp/player.maxHP*100)+"%";
+  $("enemyBar").style.width=(enemy.hp/enemy.maxHP*100)+"%";
+  $("tpBar").style.width=tp+"%";
+  $("enemyBar").style.background=enemy.type==="boss"?(enemy.phase===3?"#ff2020":enemy.phase===2?"#ff7733":"#ff4545"):"#ff4545";
+}
+
+/* FASES DEL GUARDIAN */
+function updateBossPhase() {
+  if(!enemy||enemy.type!=="boss"||enemy.hp<=0) return;
+  const percentage=enemy.hp/enemy.maxHP*100;
+  const oldPhase=enemy.phase;
+  if(percentage<=34) enemy.phase=3;
+  else if(percentage<=69) enemy.phase=2;
+
+  if(enemy.phase!==oldPhase) {
+    const enemyElement=$("enemy");
+    enemyElement.classList.remove("guardian-phase2","guardian-phase3");
+    if(enemy.phase===2) {
+      enemyElement.classList.add("guardian-phase2");
+      renderSprite(enemyElement,enemy.sprites[2],'<div class="guardian"></div>');
+      message("¡EL GUARDIÁN ENTRA EN LA SEGUNDA FASE!");
+    }
+    if(enemy.phase===3) {
+      enemyElement.classList.add("guardian-phase3");
+      renderSprite(enemyElement,enemy.sprites[3],'<div class="guardian"></div>');
+      message("¡EL GUARDIÁN DESATA SU PODER FINAL!");
+    }
+    updateStatus();
+  }
+}
+
+/* HABILIDADES */
+function useSkill() {
+  if(turnLocked||!enemy) return;
+
+  let cost=0;
+
+  if(player.shape==="square") cost=75;
+  else if(player.shape==="triangle") cost=50;
+  else if(player.shape==="circle") cost=60;
+  else if(player.shape==="pentagon") cost=50;
+  else if(player.shape==="boomer") cost=60;
+
+  if(player.shape==="circle"&&pauloBoostTurns>0) {
+    message("¡La potenciación de Paulo todavía está activa!");
+    return;
+  }
+
+  if(player.shape==="boomer"&&player.hp===player.maxHP) {
+    message("¡Boomer ya tiene todos sus HP!");
+    return;
+  }
+
+  if(tp<cost) {
+    message("TP insuficiente. Necesitas "+cost+"% y tienes "+tp+"%.");
+    return;
+  }
+
+  tp-=cost;
+
+  if(player.shape==="square") {
+    josePowerAttack=true;
+    message("¡José prepara su Golpe poderoso!");
+
+  } else if(player.shape==="triangle") {
+    ivanAbsoluteDefense=true;
+    message("¡Iván activa su Defensa absoluta!");
+
+  } else if(player.shape==="circle") {
+    pauloOriginalAtk=player.atk;
+    pauloOriginalDef=player.def;
+    player.atk+=10;
+    player.def+=10;
+    pauloBoostTurns=3;
+    message("¡Paulo aumenta su ATQ y DEF durante 3 turnos!");
+
+  } else if(player.shape==="pentagon") {
+    gabrielTimeDistortion=true;
+    message("¡GABRIEL ACTIVA DISTORSIÓN TEMPORAL!");
+
+  } else if(player.shape==="boomer") {
+    const recovered=Math.min(15,player.maxHP-player.hp);
+    player.hp+=recovered;
+    playSfx("item");
+    message("¡Boomer utilizó Curación y recuperó "+recovered+" HP!");
+  }
+
+  updateStatus();
+  enemyTurn();
+}
+
+/* ATACAR */
+function attack() {
+  if(turnLocked||!enemy) return;
+  playSfx("attack");
+  let damage=player.atk;
+  if(josePowerAttack) { damage*=2; josePowerAttack=false; }
+  damage=Math.max(1,damage-(enemy.def||0));
+  enemy.hp=Math.max(0,enemy.hp-damage);
+  tp=Math.min(100,tp+10);
+  message(player.name+" atacó e hizo "+damage+" de daño.");
+  updateBossPhase();
+  updateStatus();
+  checkEnemy();
+}
+
+/* ACT */
+function act() {
+  if(turnLocked||!enemy) return;
+  if(mercy>=100) { message("El enemigo está listo para ser perdonado."); return; }
+  mercy=Math.min(100,mercy+35);
+  tp=Math.min(100,tp+16);
+  message("Intentaste hablar con el enemigo. PERDONAR: "+mercy+"%");
+  updateStatus();
+  enemyTurn();
+}
+
+/* OBJETOS */
+function item() {
+  if(turnLocked||!enemy) return;
+  if(potionUsed) { message("Ya utilizaste tu poción."); return; }
+  if(player.hp===player.maxHP) { message("Tus HP ya están completos."); return; }
+  player.hp=Math.min(player.maxHP,player.hp+25);
+  potionUsed=true;
+  playSfx("item");
+  message("¡Utilizaste una poción! Recuperaste HP.");
+  updateStatus();
+  enemyTurn();
+}
+
+/* DEFENDER */
+function defend() {
+  if(turnLocked||!enemy) return;
+  defended=true;
+  tp=Math.min(100,tp+16);
+  message(player.name+" se prepara para defenderse.");
+  updateStatus();
+  enemyTurn();
+}
+
+/* PERDONAR */
+function spare() {
+  if(turnLocked||!enemy) return;
+  if(enemy.type==="boss") { message("¡EL GUARDIÁN no puede ser perdonado! Debes derrotarlo."); return; }
+  if(mercy<100) { message("El enemigo todavía no está listo para ser perdonado."); return; }
+  victory();
+}
+
+/* COMPROBAR ENEMIGO */
+function checkEnemy() {
+  if(enemy.hp<=0) {
+    enemy.hp=0;
+    updateStatus();
+    victory();
+  } else enemyTurn();
+}
+
+/* TURNO ENEMIGO */
+function enemyTurn() {
+  if(turnLocked||!enemy) return;
+  turnLocked=true;
+  $("menu").style.display="none";
+  message(enemy.type==="boss"?"¡EL GUARDIÁN ataca! Esquiva sus proyectiles.":"¡Turno del enemigo! Esquiva sus ataques.");
+  startDodge();
+}
+
+/* ESQUIVA */
+function startDodge() {
+  stopDynamicJoystick();
+  clearTimers();
+  dodgeActive=true;
+  const area=$("dodgeArea");
+  area.innerHTML='<div id="soul"></div>';
+renderSoul();
+  area.insertAdjacentHTML("beforeend",`
+    <div class="virtual-joystick" id="virtualJoystick">
+      <div class="virtual-joystick-knob" id="joystickKnob"></div>
+    </div>
+  `);
+  $("soul").style.color=player.color;
+  area.style.display="block";
+  $("controls").style.display="none";
+  soulX=50; soulY=50; keysPressed={};
+  lastMovementTime=0;
+  positionSoul();
+  movementFrame=requestAnimationFrame(startMovementLoop);
+  projectiles=[];
+  attackPatternCounter=0;
+  alternatingHigh=true;
+  lastBossPattern=-1;
+  let interval=800;
+  if(enemy.type==="boss") {
+    if(enemy.phase===2) interval=650;
+    if(enemy.phase===3) interval=480;
+  }
+  projectileInterval=setInterval(createProjectile,interval);
+  lastProjectileTime=0;
+  projectileFrame=requestAnimationFrame(updateProjectiles);
+  dodgeTimeout=setTimeout(endDodge,5000);
+}
+
+/* CREAR PROYECTILES */
+function spawnProjectile(y,vy=0,x=100) {
+  if(!dodgeActive) return;
+
+  const area=$("dodgeArea");
+  const projectile=document.createElement("img");
+
+  projectile.className="projectile";
+  projectile.src=enemy.projectile || "";
+  projectile.alt="";
+  projectile.draggable=false;
+
+  projectile.style.left=x+"%";
+  projectile.style.top=y+"%";
+
+  area.appendChild(projectile);
+
+  projectiles.push({
+    element:projectile,
+    x:x,
+    y:y,
+    vy:vy,
+    hit:false,
+    grazed:false
+  });
+    }
+  
+/* PATRONES DE ATAQUE */
+function createProjectile() {
+  if(!dodgeActive) return;
+  if(enemy.name==="SLIME OSCURO") {
+  createDarkSlimePattern();
+  return;
+  }
+  const isBoss=enemy&&enemy.type==="boss";
+  if(enemy.name==="CUADRADO MALVADO") {
+  createSquareEnemyPattern();
+  return;
+  }
+  if(enemy.name==="MINI GUARDIÁN") {
+  createMiniGuardianPattern();
+  return;
+}
+
+if(enemy.name==="ARACNOCOFRE") {
+  createAracnocofrePattern();
+  return;
+  }
+  const phase=isBoss?enemy.phase:1;
+let pattern;
+
+if(isBoss) {
+  do {
+    pattern=Math.floor(Math.random()*4);
+  } while(pattern===lastBossPattern);
+
+  lastBossPattern=pattern;
+} else {
+  pattern=attackPatternCounter%4;
+  attackPatternCounter++;
+}
+
+  if(phase===1) {
+    if(pattern===0) { spawnProjectile(30); spawnProjectile(70); }
+    else if(pattern===1) {
+  // DISPARO QUE BUSCA LA POSICIÓN DEL ALMA
+  const objetivo=soulY+(Math.random()*20-10);
+  const altura=Math.max(8,Math.min(92,objetivo));
+
+  spawnProjectile(altura);
+  }    else if(pattern===2) {
+      const y=30+Math.random()*40;
+      spawnProjectile(y,0,100);
+      setTimeout(()=>spawnProjectile(y,0,108),120);
+      setTimeout(()=>spawnProjectile(y,0,116),240);
+    } else {
+      spawnProjectile(alternatingHigh?25:75);
+      alternatingHigh=!alternatingHigh;
+    }
+  } else if(phase===2) {
+    if(pattern===0) { spawnProjectile(20); spawnProjectile(50); spawnProjectile(80); }
+    else if(pattern===1) {
+  // ATAQUE QUE INTENTA ANTICIPARSE AL ALMA
+  const direccion=Math.random()<0.5?-1:1;
+  const objetivo=soulY;
+
+  const altura1=Math.max(8,Math.min(92,objetivo));
+  const altura2=Math.max(8,Math.min(92,objetivo+direccion*22));
+
+  spawnProjectile(altura1);
+  setTimeout(()=>{
+    spawnProjectile(altura2);
+  },180);
+    }   else if(pattern===2) {
+      const y=25+Math.random()*50;
+      spawnProjectile(y,0,100);
+      setTimeout(()=>spawnProjectile(y-10,0,108),100);
+      setTimeout(()=>spawnProjectile(y+10,0,116),200);
+    } else {
+      spawnProjectile(15); spawnProjectile(85); spawnProjectile(50,.2);
+    }
+  } else {
+    if(pattern===0) {
+      spawnProjectile(15); spawnProjectile(40); spawnProjectile(65); spawnProjectile(90);
+    } else if(pattern===1) {
+      spawnProjectile(20,.3); spawnProjectile(50,-.3); spawnProjectile(80,.3);
+    } else if(pattern===2) {
+  // SECUENCIA DE ATAQUES QUE CAMBIAN DE OBJETIVO
+  const objetivo1=soulY;
+  const cambio=Math.random()<0.5?-1:1;
+
+  const objetivo2=Math.max(8,Math.min(92,objetivo1+cambio*25));
+  const objetivo3=10+Math.random()*80;
+
+  spawnProjectile(objetivo1);
+
+  setTimeout(()=>{
+    spawnProjectile(objetivo2);
+  },130);
+
+  setTimeout(()=>{
+    spawnProjectile(objetivo3);
+  },260);
+  } else {
+      spawnProjectile(15); spawnProjectile(85); spawnProjectile(35,.25); spawnProjectile(65,-.25);
+    }
+  }
+}
+/* ATAQUE ESPECIAL DEL ARACNOCOFRE */
+
+function createAracnocofrePattern() {
+
+  if (!dodgeActive) return;
+
+  const area = $("dodgeArea");
+
+  // Posición aleatoria del hueco
+  const gapTop = 18 + Math.random() * 48;
+  const gapHeight = 25;
+
+  // Misma velocidad para las dos patas
+const pairSpeed = 3.2;
+  // Pilar superior
+  const top = document.createElement("div");
+
+  top.className =
+    "aracnocofre-pillar aracnocofre-pillar-top";
+
+  top.style.height = gapTop + "%";
+  top.style.animationDuration = pairSpeed + "s";
+
+  // Pilar inferior
+  const bottom = document.createElement("div");
+
+  bottom.className =
+    "aracnocofre-pillar aracnocofre-pillar-bottom";
+
+  bottom.style.height =
+    (100 - gapTop - gapHeight) + "%";
+
+  bottom.style.animationDuration =
+    pairSpeed + "s";
+
+  // Eliminar al terminar el recorrido
+  top.addEventListener("animationend", () => top.remove());
+  bottom.addEventListener("animationend", () => bottom.remove());
+
+  area.appendChild(top);
+  area.appendChild(bottom);
+
+  // Detección de colisiones
+  let alreadyHit = false;
+
+  function overlaps(a, b) {
+    return (
+      a.left < b.right &&
+      a.right > b.left &&
+      a.top < b.bottom &&
+      a.bottom > b.top
+    );
+  }
+
+  function checkCollision() {
+
+    if (!dodgeActive) return;
+
+    if (!top.isConnected && !bottom.isConnected) {
+      return;
+    }
+
+    if (!alreadyHit) {
+
+      const soul = $("soul");
+
+      if (soul) {
+
+        const soulRect = soul.getBoundingClientRect();
+
+        let collision = false;
+
+        if (top.isConnected) {
+  const rect = top.getBoundingClientRect();
+
+  // Cuerpo de la pata superior
+  const body = {
+    left: rect.left,
+    right: rect.right,
+    top: rect.top,
+    bottom: rect.bottom - 18
+  };
+
+  collision = overlaps(soulRect, body);
+}
+
+if (!collision && bottom.isConnected) {
+  const rect = bottom.getBoundingClientRect();
+
+  // Cuerpo de la pata inferior
+  const body = {
+    left: rect.left,
+    right: rect.right,
+    top: rect.top + 18,
+    bottom: rect.bottom
+  };
+
+  collision = overlaps(soulRect, body);
+  }
+
+        if (collision) {
+
+          alreadyHit = true;
+
+          let damage = Math.max(1, enemy.atk - player.def);
+
+          if (ivanAbsoluteDefense) {
+            damage = 0;
+          } else if (defended) {
+            damage = Math.ceil(damage / 2);
+          }
+
+          player.hp = Math.max(0, player.hp - damage);
+
+          if (damage > 0) {
+
+            playSfx("damage");
+            showSoulInvulnerability();
+
+            message(
+              "¡Las patas del Aracnocofre te alcanzaron! -" +
+              damage + " HP."
+            );
+
+          } else {
+
+            message(
+              "¡Defensa absoluta! No recibiste daño."
+            );
+
+          }
+
+          updateStatus();
+
+          if (player.hp <= 0) {
+            endDodge();
+            return;
+          }
+        }
+      }
+    }
+
+    requestAnimationFrame(checkCollision);
+  }
+
+  requestAnimationFrame(checkCollision);
+      }
+  /* PATRONES DEL MINI GUARDIÁN */
+function createMiniGuardianPattern() {
+
+  // Elegir un patrón aleatorio sin repetir el anterior
+  let pattern;
+
+  do {
+    pattern = Math.floor(Math.random() * 4);
+  } while(pattern === lastBossPattern);
+
+  lastBossPattern = pattern;
+
+  // PATRÓN 1: DOS PROYECTILES
+  if(pattern === 0) {
+
+    spawnProjectile(30);
+    spawnProjectile(70);
+
+  }
+
+  // PATRÓN 2: DISPARO QUE BUSCA EL ALMA
+  else if(pattern === 1) {
+
+    const objetivo = soulY + (Math.random() * 20 - 10);
+    const altura = Math.max(8, Math.min(92, objetivo));
+
+    spawnProjectile(altura);
+
+  }
+
+  // PATRÓN 3: RÁFAGA DE TRES PROYECTILES
+  else if(pattern === 2) {
+
+    const y = 30 + Math.random() * 40;
+
+    spawnProjectile(y, 0, 100);
+
+    setTimeout(() => spawnProjectile(y, 0, 108), 120);
+
+    setTimeout(() => spawnProjectile(y, 0, 116), 240);
+
+  }
+
+  // PATRÓN 4: DISPAROS ALTERNADOS
+  else {
+
+    spawnProjectile(alternatingHigh ? 25 : 75);
+
+    alternatingHigh = !alternatingHigh;
+
+  }
+}
+/* PATRONES IMPREDECIBLES DEL CUADRADO MALVADO */
+function createSquareEnemyPattern() {
+
+  const tipo=Math.floor(Math.random()*4);
+
+  if(tipo===0) {
+    // DISPARO INDIVIDUAL
+    spawnProjectile(15+Math.random()*70);
+
+  } else if(tipo===1) {
+    // RÁFAGA VARIABLE
+    const cantidad=2+Math.floor(Math.random()*2);
+
+    for(let i=0;i<cantidad;i++) {
+      const y=10+Math.random()*80;
+      setTimeout(()=>{
+        spawnProjectile(y);
+      },i*(100+Math.random()*180));
+    }
+
+  } else if(tipo===2) {
+    // LLUVIA CON ESPACIOS ALEATORIOS
+    const cantidad=3+Math.floor(Math.random()*2);
+    const alturas=[];
+
+    for(let i=0;i<cantidad;i++) {
+      alturas.push(10+Math.random()*80);
+    }
+
+    alturas.forEach((y,i)=>{
+      setTimeout(()=>{
+        spawnProjectile(y);
+      },i*90);
+    });
+
+  } else {
+    // DOBLE ATAQUE CON MOVIMIENTO
+    const y=20+Math.random()*60;
+
+    spawnProjectile(y,.2);
+    setTimeout(()=>{
+      spawnProjectile(100-y,-.2);
+    },150+Math.random()*200);
+  }
+}
+  /* PATRONES IMPREDECIBLES DEL SLIME OSCURO */
+function createDarkSlimePattern() {
+
+  const tipo=Math.floor(Math.random()*4);
+
+  if(tipo===0) {
+    // SALPICADURA
+    const cantidad=3+Math.floor(Math.random()*3);
+
+    for(let i=0;i<cantidad;i++) {
+      const y=15+Math.random()*70;
+
+      setTimeout(()=>{
+        spawnProjectile(y);
+      },i*(100+Math.random()*120));
+    }
+
+  } else if(tipo===1) {
+    // REBOTE
+    const cantidad=2+Math.floor(Math.random()*3);
+
+    for(let i=0;i<cantidad;i++) {
+      const y=20+Math.random()*60;
+      const velocidad=Math.random()<0.5?.25:-.25;
+
+      setTimeout(()=>{
+        spawnProjectile(y,velocidad);
+      },i*150);
+    }
+
+  } else if(tipo===2) {
+    // OLEADA
+    const inicio=10+Math.random()*30;
+
+    for(let i=0;i<4;i++) {
+      setTimeout(()=>{
+        spawnProjectile(inicio+i*15+Math.random()*8);
+      },i*130);
+    }
+
+  } else {
+    // EXPLOSIÓN DE GOTAS
+    const centro=20+Math.random()*60;
+
+    spawnProjectile(centro);
+    spawnProjectile(Math.max(10,centro-20));
+    spawnProjectile(Math.min(90,centro+20));
+
+    setTimeout(()=>{
+      spawnProjectile(10+Math.random()*80);
+    },200+Math.random()*180);
+  }
+}
+/* GRAZE */
+function createGrazeEffect(x,y) {
+  const effect=document.createElement("div");
+  effect.className="graze-effect";
+  effect.style.left=x+"%";
+  effect.style.top=y+"%";
+  effect.innerHTML='<div class="graze-ring"></div><div class="graze-text">+2% TP</div>';
+  $("dodgeArea").appendChild(effect);
+  setTimeout(()=>effect.remove(),700);
+}
+
+/* ACTUALIZAR PROYECTILES */
+function updateProjectiles(timestamp) {
+  if(!dodgeActive) return;
+  if(!lastProjectileTime) lastProjectileTime=timestamp;
+  const delta=Math.min(timestamp-lastProjectileTime,50);
+  lastProjectileTime=timestamp;
+  let speed=1.5;
+  if(enemy.type==="boss") {
+    if(enemy.phase===2) speed=1.9;
+    if(enemy.phase===3) speed=2.4;
+  }
+
+  projectiles.forEach(p=>{
+    if(p.hit) return;
+    p.x-=(gabrielTimeDistortion?speed*.5:speed)*(delta/30);
+    p.y+=(p.vy||0)*(delta/30);
+    p.element.style.left=p.x+"%";
+    p.element.style.top=p.y+"%";
+    const area=$("dodgeArea");
+const soulSize=20;
+const projectileSize=16;
+
+const soulCenterX=area.clientWidth*soulX/100;
+const soulCenterY=area.clientHeight*soulY/100;
+
+const projectileCenterX=area.clientWidth*p.x/100+projectileSize/2;
+const projectileCenterY=area.clientHeight*p.y/100+projectileSize/2;
+
+const hitX=Math.abs(projectileCenterX-soulCenterX)<(soulSize+projectileSize)/2;
+const hitY=Math.abs(projectileCenterY-soulCenterY)<(soulSize+projectileSize)/2;
+
+    if(hitX&&hitY) {
+      p.hit=true;
+      p.element.remove();
+      let damage;
+      if(ivanAbsoluteDefense) damage=0;
+      else {
+        damage=Math.max(1,enemy.atk-player.def);
+        if(defended) damage=Math.ceil(damage/2);
+      }
+      player.hp=Math.max(0,player.hp-damage);
+      if(damage>0) {
+        playSfx("damage");
+        showSoulInvulnerability();
+        message("¡Recibiste "+damage+" de daño!");
+      } else message("¡Defensa absoluta! No recibiste daño.");
+      updateStatus();
+      if(player.hp<=0) { endDodge(); return; }
+    } else if(
+  Math.abs(projectileCenterX-soulCenterX)<(20+16)/2+12 &&
+  Math.abs(projectileCenterY-soulCenterY)<(20+16)/2+12 &&
+  !p.grazed
+) {
+  p.grazed=true;
+  tp=Math.min(100,tp+2);
+  updateStatus();
+  createGrazeEffect(p.x,p.y);
+    }
+    if(p.x<-5||p.y<-5||p.y>105) p.element.remove();
+  });
+
+  projectiles=projectiles.filter(p=>!p.hit&&p.x>=-5&&p.y>=-5&&p.y<=105&&p.element.parentNode);
+  if(!dodgeActive) return;
+  projectileFrame=requestAnimationFrame(updateProjectiles);
+}
+
+/* MOVIMIENTO DEL ALMA */
+function positionSoul() {
+  const soul=$("soul");
+  if(!soul) return;
+  soul.style.left=soulX+"%";
+  soul.style.top=soulY+"%";
+}
+
+function moveSoul(dx,dy) {
+  if(!dodgeActive) return;
+  soulX=Math.max(5,Math.min(95,soulX+dx));
+  soulY=Math.max(8,Math.min(92,soulY+dy));
+  positionSoul();
+}
+
+function startMovementLoop(timestamp) {
+  if(!dodgeActive) return;
+  if(!lastMovementTime) lastMovementTime=timestamp;
+  const delta=Math.min(timestamp-lastMovementTime,32);
+  lastMovementTime=timestamp;
+  let dx=0,dy=0;
+  if(keysPressed.left) dx--;
+  if(keysPressed.right) dx++;
+  if(keysPressed.up) dy--;
+  if(keysPressed.down) dy++;
+  if(dx!==0&&dy!==0) { dx*=.707; dy*=.707; }
+  if(dx!==0||dy!==0) {
+    soulX=Math.max(5,Math.min(95,soulX+dx*soulSpeed*delta));
+    soulY=Math.max(8,Math.min(92,soulY+dy*soulSpeed*delta));
+    positionSoul();
+  }
+  movementFrame=requestAnimationFrame(startMovementLoop);
+}
+
+/* JOYSTICK TACTIL */
+function startDynamicJoystick(event) {
+  if(!dodgeActive||joystickActive) return;
+  const joystick=$("virtualJoystick");
+  if(!joystick) return;
+  const rect=joystick.getBoundingClientRect();
+  joystickActive=true;
+  joystickPointerId=event.pointerId;
+  joystickCenterX=rect.left+rect.width/2;
+  joystickCenterY=rect.top+rect.height/2;
+  joystick.setPointerCapture(event.pointerId);
+  moveDynamicJoystick(event);
+}
+
+function moveDynamicJoystick(event) {
+  if(!joystickActive||event.pointerId!==joystickPointerId) return;
+  let dx=event.clientX-joystickCenterX;
+  let dy=event.clientY-joystickCenterY;
+  const maxDistance=38;
+  const distance=Math.hypot(dx,dy);
+  if(distance>maxDistance) { dx=dx/distance*maxDistance; dy=dy/distance*maxDistance; }
+  const knob=$("joystickKnob");
+  knob.style.left=`calc(50% + ${dx}px)`;
+  knob.style.top=`calc(50% + ${dy}px)`;
+  const threshold=8;
+  keysPressed.left=dx<-threshold;
+  keysPressed.right=dx>threshold;
+  keysPressed.up=dy<-threshold;
+  keysPressed.down=dy>threshold;
+}
+
+function stopDynamicJoystick(event) {
+  if(!joystickActive) return;
+  if(event&&event.pointerId!==joystickPointerId) return;
+  joystickActive=false;
+  joystickPointerId=null;
+  keysPressed={};
+  const knob=$("joystickKnob");
+  if(knob) { knob.style.left="50%"; knob.style.top="50%"; }
+}
+
+/* INVULNERABILIDAD */
+function showSoulInvulnerability() {
+  const soul=$("soul");
+  if(!soul) return;
+  soul.classList.remove("soul-invulnerable");
+  void soul.offsetWidth;
+  soul.classList.add("soul-invulnerable");
+  setTimeout(()=>soul.classList.remove("soul-invulnerable"),800);
+}
+
+/* FINAL DE ESQUIVA */
+function endDodge() {
+  if(!dodgeActive) return;
+  dodgeActive=false;
+  clearTimers();
+  stopDynamicJoystick();
+  $("dodgeArea").style.display="none";
+  $("controls").style.display="none";
+  $("dodgeArea").innerHTML='<div id="soul">♥</div>';
+  projectiles=[];
+
+  if(player.hp<=0) { defeat(); return; }
+
+  defended=false;
+  if(pauloBoostTurns>0) {
+    pauloBoostTurns--;
+    if(pauloBoostTurns===0) {
+      player.atk=pauloOriginalAtk;
+      player.def=pauloOriginalDef;
+      message("La potenciación de Paulo terminó. Sus estadísticas volvieron a la normalidad.");
+    }
+  }
+  ivanAbsoluteDefense=false;
+  gabrielTimeDistortion=false;
+  turnLocked=false;
+  $("menu").style.display="grid";
+  if(pauloBoostTurns===0) message("Tu turno. ¿Qué harás?");
+  updateStatus();
+}
+
+/* LIMPIAR TEMPORIZADORES */
+function clearTimers() {
+  clearInterval(projectileInterval);
+  clearTimeout(dodgeTimeout);
+  projectileInterval=null;
+  dodgeTimeout=null;
+  if(movementFrame!==null) { cancelAnimationFrame(movementFrame); movementFrame=null; }
+  if(projectileFrame!==null) { cancelAnimationFrame(projectileFrame); projectileFrame=null; }
+  keysPressed={};
+  lastProjectileTime=0;
+  lastMovementTime=0;
+}
+
+/* VICTORIA */
+function victory() {
+  dodgeActive=false;
+  turnLocked=true;
+  clearTimers();
+  stopDynamicJoystick();
+  $("dodgeArea").style.display="none";
+  $("controls").style.display="none";
+  $("menu").style.display="grid";
+  showScreen("end");
+  playMusic("end");
+  playSfx("victory");
+  $("endTitle").innerText="¡VICTORIA!";
+  $("endMessage").innerText=enemy.type==="boss"
+    ?"¡Has derrotado a EL GUARDIÁN! Has superado sus tres fases. ¡Eres un verdadero héroe de PANASTALE!"
+    :"¡Has ganado la batalla!";
+}
+
+/* DERROTA */
+function defeat() {
+  dodgeActive=false;
+  turnLocked=true;
+  clearTimers();
+  stopDynamicJoystick();
+  $("dodgeArea").style.display="none";
+  $("controls").style.display="none";
+  $("menu").style.display="grid";
+  showScreen("end");
+  playMusic("defeat");
+  playSfx("defeat");
+  $("endTitle").innerText="DERROTA";
+  $("endMessage").innerText="Tu personaje ha perdido la batalla.";
+}
+
+/* BOTONES */
+$("openEnemyCatalog").addEventListener("click",()=>{
+  showScreen("enemyCatalog");
+});
+  $("backToSelection").addEventListener("click",()=>{
+  showScreen("selection");
+});
+  // Enemigos organizados por categorías
+
+const ENEMY_CATEGORIES = {
+  common: [
+    {
+      name: "CUADRADO MALVADO",
+      sprite: "Sprites/Enemigos/CuadradoMalvado.png",
+      projectile: "Sprites/Proyectiles/Proyectil_CM.png",
+      hp: 80,
+      atk: 8,
+      def: 0
+    },
+    {
+      name: "SLIME OSCURO",
+      sprite: "Sprites/Enemigos/SlimeOscuro.png",
+      projectile: "Sprites/Proyectiles/Proyectil_SO.png",
+      hp: 60,
+      atk: 7,
+      def: 2
+    },
+    {
+      name: "MINI GUARDIÁN",
+      sprite: "Sprites/Enemigos/MiniGuardian.png",
+      projectile: "Sprites/Proyectiles/Proyectil_Guardian.png",
+      hp: 100,
+      atk: 9,
+      def: 3
+    }
+  ],
+
+  special: [
+    {
+      name: "ARACNOCOFRE",
+      sprite: "Sprites/Enemigos/Aracnocofre.png",
+      projectile: "Sprites/Proyectiles/Proyectil_SO.png",
+      hp: 180,
+      atk: 14,
+      def: 4
+    }
+  ],
+
+  miniBoss: [],
+
+  boss: [
+    {
+      name: "EL GUARDIÁN",
+      sprite: "Sprites/Enemigos/guardian_fase1.png",
+      projectile: "Sprites/Proyectiles/Proyectil_Guardian.png",
+      hp: 500,
+      atk: 12,
+      def: 5
+    }
+  ]
+};
+
+// Mostrar una categoría
+function showEnemyCategory(category, title) {
+  $("categoryMenu").style.display = "none";
+  $("enemyList").style.display = "block";
+
+  $("categoryTitle").textContent = title;
+
+  const container = $("enemyButtons");
+  container.innerHTML = "";
+
+  const enemies = ENEMY_CATEGORIES[category];
+
+  if (enemies.length === 0) {
+    container.textContent = "PRÓXIMAMENTE...";
+    return;
+  }
+
+  enemies.forEach((enemyData, index) => {
+    const enemy = document.createElement("div");
+    enemy.className = "enemy-entry";
+
+    const sprite = document.createElement("img");
+    sprite.src = enemyData.sprite;
+    sprite.alt = enemyData.name;
+    sprite.className = "catalog-sprite";
+
+    const name = document.createElement("p");
+    name.textContent = enemyData.name;
+
+    const stats = document.createElement("div");
+    stats.className = "enemy-stats";
+    stats.style.display = "none";
+
+    stats.innerHTML = `
+  <p>HP: ${enemyData.hp}</p>
+  <p>ATQ: ${enemyData.atk}</p>
+  <p>DEF: ${enemyData.def}</p>
+  <button class="fight-enemy">⚔ ENFRENTAR</button>
+`;
+    const fightButton = stats.querySelector(".fight-enemy");
+
+fightButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+
+  const selectedEnemy = {
+  ...ENEMY_CATEGORIES[category][index],
+  category: category
+};
+
+  startBattle(
+    category === "boss" ? "boss" : "normal",
+    selectedEnemy
+  );
+});
+
+    enemy.appendChild(sprite);
+    enemy.appendChild(name);
+    enemy.appendChild(stats);
+
+    enemy.addEventListener("click", () => {
+      stats.style.display =
+        stats.style.display === "none" ? "block" : "none";
+    });
+
+    container.appendChild(enemy);
+  });
+    }
+// Botones de categorías
+$("commonCategory").addEventListener("click", () => {
+  showEnemyCategory("common", "ENEMIGOS COMUNES");
+});
+
+$("specialCategory").addEventListener("click", () => {
+  showEnemyCategory("special", "ENEMIGOS ESPECIALES");
+});
+
+$("miniBossCategory").addEventListener("click", () => {
+  showEnemyCategory("miniBoss", "MINIJEFES");
+});
+
+$("bossCategory").addEventListener("click", () => {
+  showEnemyCategory("boss", "JEFES");
+});
+
+// Regresar a las categorías
+$("backToCategories").addEventListener("click", () => {
+  $("enemyList").style.display = "none";
+  $("categoryMenu").style.display = "block";
+});
+$("playBtn").addEventListener("click",()=>showScreen("selection"));
+$("musicToggle").addEventListener("click",toggleMusic);
+$("attackBtn").addEventListener("click",attack);
+$("skillBtn").addEventListener("click",useSkill);
+$("actBtn").addEventListener("click",act);
+$("itemBtn").addEventListener("click",item);
+$("defendBtn").addEventListener("click",defend);
+$("spareBtn").addEventListener("click",spare);
+$("restartBtn").addEventListener("click",()=>location.reload());
+
+/* CONTROLES TACTILES */
+const dodgeArea=$("dodgeArea");
+dodgeArea.style.touchAction="none";
+dodgeArea.addEventListener("pointerdown",event=>{
+  event.preventDefault();
+  startDynamicJoystick(event);
+});
+dodgeArea.addEventListener("pointermove",moveDynamicJoystick);
+dodgeArea.addEventListener("pointerup",stopDynamicJoystick);
+dodgeArea.addEventListener("pointercancel",stopDynamicJoystick);
+
+/* TECLADO */
+const keyboardControls={
+  arrowleft:"left",a:"left",
+  arrowright:"right",d:"right",
+  arrowup:"up",w:"up",
+  arrowdown:"down",s:"down"
+};
+
+document.addEventListener("keydown",event=>{
+  if(!dodgeActive) return;
+  const direction=keyboardControls[event.key.toLowerCase()];
+  if(direction) { event.preventDefault(); keysPressed[direction]=true; }
+});
+
+document.addEventListener("keyup",event=>{
+  const direction=keyboardControls[event.key.toLowerCase()];
+  if(direction) keysPressed[direction]=false;
+});
+
+/* INICIO */
+selectCharacter("Jose");
+showScreen("titleScreen");
+</script>
+  
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(error => console.log("Error:", error));
+  });
+}
+</script>
+</body>
+</html>
