@@ -1037,12 +1037,12 @@ button {
 </section>
 
 <script>
-/* SISTEMA MUSICAL EXTERNO */
+  
+  /* SISTEMA MUSICAL */
 
-let audioContext = null;
 let musicEnabled = true;
 let musicUnlocked = false;
-let currentMusic = null;
+let currentMusic = "titleScreen";
 let musicVolume = 0.8;
 
 const externalTracks = {
@@ -1060,35 +1060,23 @@ backgroundMusic.loop = true;
 backgroundMusic.volume = musicVolume;
 
 function unlockMusic() {
-  if (!musicUnlocked) {
-    musicUnlocked = true;
+  if (musicUnlocked) return;
 
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-
-    if (AudioCtx && !audioContext) {
-      try {
-        audioContext = new AudioCtx();
-        audioContext.resume().catch(console.error);
-      } catch (error) {
-        console.log("AudioContext no disponible:", error);
-      }
-    }
-  }
-
-  if (musicEnabled && currentMusic) {
-    playMusic(currentMusic);
-  }
+  musicUnlocked = true;
+  playMusic(currentMusic);
 }
 
 function playMusic(screenId) {
-  if (!musicEnabled) return;
+  currentMusic = screenId;
+
+  if (!musicEnabled || !musicUnlocked) return;
 
   let trackId = screenId;
 
   if (screenId === "battle") {
-    if (enemy && enemy.type === "boss") {
+    if (enemy?.type === "boss") {
       trackId = "guardian";
-    } else if (enemy && enemy.category === "special") {
+    } else if (enemy?.category === "special") {
       trackId = "battleSpecial";
     } else {
       trackId = "battleCommon";
@@ -1098,21 +1086,17 @@ function playMusic(screenId) {
   const track = externalTracks[trackId];
   if (!track) return;
 
-  currentMusic = screenId;
+  const source = new URL(track, document.baseURI).href;
 
-  if (!musicUnlocked) return;
-
-  const newSource = new URL(track, document.baseURI).href;
-
-  if (backgroundMusic.src !== newSource) {
-    backgroundMusic.src = newSource;
+  if (backgroundMusic.src !== source) {
+    backgroundMusic.src = source;
     backgroundMusic.load();
   }
 
   backgroundMusic.volume = musicVolume;
 
   backgroundMusic.play().catch(error => {
-    console.log("Error al reproducir música:", error);
+    console.warn("No se pudo reproducir la música:", error);
   });
 }
 
@@ -1122,10 +1106,6 @@ function stopMusic() {
 }
 
 function changeMusic(screenId) {
-  currentMusic = screenId;
-
-  if (!musicEnabled || !musicUnlocked) return;
-
   playMusic(screenId);
 }
 
@@ -1137,19 +1117,15 @@ function toggleMusic() {
 
   if (musicEnabled) {
     unlockMusic();
-
-    const activeScreen =
-      document.querySelector(".screen.active")?.id || "titleScreen";
-
-    playMusic(activeScreen);
+    playMusic(currentMusic);
   } else {
     stopMusic();
   }
 }
 
-document.addEventListener("pointerdown", unlockMusic, {once:true});
-document.addEventListener("keydown", unlockMusic, {once:true});
-
+document.addEventListener("pointerdown", unlockMusic, { once: true });
+document.addEventListener("keydown", unlockMusic, { once: true });
+  
 /* EFECTOS DE SONIDO */
 const soundPatterns = {
   select:{notes:[660,880],wave:"square",duration:.07,volume:.045},
