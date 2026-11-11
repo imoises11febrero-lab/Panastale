@@ -1,8 +1,7 @@
 
-const CACHE_NAME = "panastale-v6";
-const MUSIC_CACHE = "panastale-musica-v1";
+const CACHE_NAME = "panastale-v1";
 
-const FILES_TO_CACHE = [
+const FILES = [
   "./",
   "./index.html",
   "./manifest.json",
@@ -10,110 +9,39 @@ const FILES_TO_CACHE = [
   "./icon-512.png"
 ];
 
-// INSTALACIÓN
+// Instalar
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache => {
-      await cache.addAll(FILES_TO_CACHE);
-      await self.skipWaiting();
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(FILES);
     })
   );
+
+  self.skipWaiting();
 });
 
-// ACTIVACIÓN
+// Activar
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(async keys => {
-      await Promise.all(
+    caches.keys().then(keys => {
+      return Promise.all(
         keys
-          .filter(key =>
-            key !== CACHE_NAME &&
-            key !== MUSIC_CACHE
-          )
+          .filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
       );
-
-      await self.clients.claim();
     })
   );
+
+  self.clients.claim();
 });
 
-// DETECTAR MÚSICA
-function isMusic(request) {
-  const url = new URL(request.url);
-
-  return (
-    url.origin === self.location.origin &&
-    url.pathname.toLowerCase().includes("/music/") &&
-    url.pathname.toLowerCase().endsWith(".mp3")
-  );
-}
-
-// SOLICITUDES
+// Interceptar solicitudes
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
-  const url = new URL(event.request.url);
-
-  if (url.origin !== self.location.origin) return;
-
-  if (isMusic(event.request)) {
-    event.respondWith(
-      (async () => {
-        const musicCache = await caches.open(MUSIC_CACHE);
-
-        try {
-          const response = await fetch(event.request);
-
-          if (response.ok && response.type === "basic") {
-            await musicCache.put(
-              event.request,
-              response.clone()
-            );
-          }
-
-          return response;
-
-        } catch (error) {
-          const cached = await musicCache.match(event.request);
-
-          if (cached) return cached;
-
-          return new Response("Música no disponible", {
-            status: 503
-          });
-        }
-      })()
-    );
-
-    return;
-  }
-
   event.respondWith(
-    (async () => {
-      try {
-        const response = await fetch(event.request);
-
-        if (response.ok) {
-          const cache = await caches.open(CACHE_NAME);
-
-          await cache.put(
-            event.request,
-            response.clone()
-          );
-        }
-
-        return response;
-
-      } catch (error) {
-        const cached = await caches.match(event.request);
-
-        if (cached) return cached;
-
-        return new Response("Archivo no disponible", {
-          status: 503
-        });
-      }
-    })()
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
   );
 });
